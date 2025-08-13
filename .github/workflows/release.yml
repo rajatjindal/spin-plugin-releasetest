@@ -33,7 +33,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload "${GITHUB_REF_NAME}" dist/*.tar.gz --clobber
-      - name: spin plugin release
     
       - uses: rajatjindal/spin-plugin-releaser@fix-diff-tag-formats
         with:
