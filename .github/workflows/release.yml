@@ -3,6 +3,8 @@ name: CI/CD
 on:
   push:
     tags: [ '**' ]
+permissions:
+  contents: write
 
 jobs:
   test:
