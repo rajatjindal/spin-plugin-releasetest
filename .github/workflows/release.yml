@@ -1,0 +1,44 @@
+name: CI/CD
+
+on:
+  push:
+    tags: [ '**' ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: GOOS=linux GOARCH=arm64 go build -o dist/releasetest-linux-amd64 main.go
+      - run: GOOS=linux GOARCH=arm64 go build -o dist/releasetest-linux-arm64 main.go
+      - run: GOOS=darwin GOARCH=amd64 go build -o dist/releasetest-darwin-amd64 main.go
+      - run: GOOS=darwin GOARCH=arm64 go build -o dist/releasetest-darwin-arm64 main.go
+      - run: GOOS=windows GOARCH=amd64 go build -o dist/releasetest-windows-amd64 main.go
+      - run: GOOS=windows GOARCH=arm64 go build -o dist/releasetest-windows-arm64 main.go
+
+      - run: tar -czf dist/releasetest-darwin-amd64.tar.gz -C dist releasetest-darwin-amd64
+      - run: tar -czf dist/releasetest-darwin-arm64.tar.gz -C dist releasetest-darwin-arm64
+      - run: tar -czf dist/releasetest-linux-amd64.tar.gz -C dist releasetest-linux-amd64
+      - run: tar -czf dist/releasetest-linux-arm64.tar.gz -C dist releasetest-linux-arm64
+      - run: tar -czf dist/releasetest-windows-amd64.tar.gz -C dist releasetest-windows-amd64
+      - run: tar -czf dist/releasetest-windows-arm64.tar.gz -C dist releasetest-windows-arm64
+
+      - name: Upload to existing GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${GITHUB_REF_NAME}" dist/*.tar.gz --clobber
+      - name: spin plugin release
+    
+      - uses: rajatjindal/spin-plugin-releaser@fix-diff-tag-formats
+        with:
+          github_token: ${{ github.token }}
+          upload_checksums: true
+          template_file: contrib/spin-plugin.json.tmpl
+          release_webhook_url: "https://spin-plugin-releaser-staging.fermyon.app"
+         
