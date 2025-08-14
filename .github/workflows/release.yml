@@ -36,7 +36,7 @@ jobs:
         run: |
           gh release upload "${GITHUB_REF_NAME}" dist/*.tar.gz --clobber
     
-      - uses: rajatjindal/spin-plugin-releaser@fix-diff-tag-formats
+      - uses: rajatjindal/spin-plugin-releaser@alternate-impl
         with:
           github_token: ${{ github.token }}
           upload_checksums: true
